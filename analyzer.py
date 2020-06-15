@@ -4,7 +4,7 @@ def analyze(data, options):
         return numberOfSame(data, options['number of same'])
     else:
         # looking for specific keywords
-        return keywordSearch(data, options['keyword list'])
+        return keywordSearch(data, options['keyword list'], mode=options['mode'])
 
 def numberOfSame(data, numsame):
 
@@ -23,7 +23,19 @@ def countKeywords(data):
                 count[word]['elements'].append(key)
     return count
 
-def keywordSearch(data, keywords):
+def keywordSearch(data, keywords, mode):
     countOfKw = countKeywords(data)
+    if mode == 'or':
 
-    return({key: countOfKw[key] for key in keywords if key in countOfKw.keys()})
+        return({key: countOfKw[key] for key in keywords if key in countOfKw.keys()})
+
+    if mode == 'and':
+        seen = set()
+        repeated = set()
+        for l in [countOfKw[k]['elements'] for k in keywords if k in countOfKw]:
+            for i in set(l):
+                if i in seen:
+                    repeated.add(i)
+                else:
+                    seen.add(i)
+        return(repeated)

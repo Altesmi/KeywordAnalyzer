@@ -5,7 +5,7 @@ if __name__ == '__main__':
 
     input = readInput(fname)
     # options = {'number of same': 2}
-    options = {'keyword list': ['taas', 'entiedä']}
+    options = {'keyword list': ['taas', 'entiedä'],'mode': 'and'}
 
     results = analyze(input,options)
     print(results)
