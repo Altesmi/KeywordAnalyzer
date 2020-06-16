@@ -15,6 +15,7 @@ def numberOfSame(data, numSame):
     return findAllIntersectionsOfKeywords(countOfKw, numSame)
 
 def countKeywords(data):
+    """ Count all keywords in the input data file. """
     count = {}
     for key,value in data.items():
         for word in value:
@@ -26,7 +27,12 @@ def countKeywords(data):
     return count
 
 def keywordSearch(data, keywords, mode):
+    """ Search for specific keyword(s) from the data. """
     countOfKw = countKeywords(data)
+    for word in keywords:
+        if word not in countOfKw.keys():
+            countOfKw[word] = {'elements': [], 'occurence': 0}
+
     if mode == 'or':
 
         return({key: countOfKw[key] for key in keywords if key in countOfKw.keys()})
