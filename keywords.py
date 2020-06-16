@@ -41,7 +41,7 @@ def main(argv):
                 quitProgram()
         if opt in ('-c','-y','--common','--yht'):
             numSame = int(arg)
-        if opt in ('-l','k','outputlang','kieli'):
+        if opt in ('-l','-k','--outputlang','--kieli'):
             if arg in ('fi','suomi'):
                 outputlang = 'fi'
     
