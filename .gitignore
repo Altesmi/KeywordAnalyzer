@@ -133,3 +133,7 @@ dmypy.json
 
 # data
 *.dat
+*.txt
+
+# environments
+.keywordenv

@@ -1,12 +1,13 @@
 def readInput(filename):
-    returnDict = {} 
+    returnDict = {}
     with open(filename) as f:
         lines = f.readlines()
         for line in lines:
+            if(len(line) <= 1):
+                break
             keyvalueSplit = line.split(':')
             key = keyvalueSplit[0]
-            keyvalueSplit[1] = keyvalueSplit[1][:-1] #remove '\n'
-            returnDict[key] = keyvalueSplit[1].replace(' ','').split(',')
+            keyvalueSplit[1] = keyvalueSplit[1][:-1]  # remove '\n'
+            returnDict[key] = keyvalueSplit[1].replace(' ', '').split(',')
 
     return returnDict
-            
