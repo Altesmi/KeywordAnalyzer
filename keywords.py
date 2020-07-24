@@ -78,6 +78,13 @@ def main(argv):
     elif (numSame > 0 and len(keywords) == 0 and len(mode) == 0
           and len(numSplit) > 1 and numSplit[1] == '+'):
         options = {'number of same': numSame, 'plus': True}
+    elif (numSame > 0 and len(keywords) > 0 and len(mode) > 0):
+        options = {'number of same': numSame,
+                   'keyword list': keywords,
+                   'mode': mode}
+        if(len(numSplit) > 1 and numSplit[1] == '+'):
+            options['plus'] = True
+
     else:
         quitProgram()
 
@@ -85,7 +92,7 @@ def main(argv):
 
     results = analyze(input, options)
 
-    if len(keywords) > 0 and mode == 'or':
+    if len(keywords) > 0 and mode == 'or' and numSame == 0:
         if(outputlang == 'en'):
             for k, v in results.items():
                 print('For keyword {} found following matches'.format(k))
@@ -102,7 +109,7 @@ def main(argv):
                           v['occurence']))
                 print()
 
-    elif len(keywords) > 0 and mode == 'and':
+    elif len(keywords) > 0 and mode == 'and' and numSame == 0:
         if(outputlang == 'en'):
             print('The words {} are all found in titles'.format(keywords))
             print(list(results))

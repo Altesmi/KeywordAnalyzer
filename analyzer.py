@@ -4,14 +4,33 @@ import statistics
 
 
 def analyze(data, options):
-    if(options.get('number of same') is not None):
+
+    if(options.get('number of same') is not None
+       and options.get('keyword list') is None):
         # no keywords, looking for x num of same arguments
         plus = True if options.get('plus') else False
         return numberOfSame(data, options['number of same'], plus)
-    elif(options.get('keyword list') is not None):
+    elif(options.get('keyword list') is not None
+         and options.get('number of same') is None):
         # looking for a set of specific keywords
         return keywordSearch(data, options['keyword list'],
                              mode=options['mode'])
+    elif (options.get('keyword list') is not None
+          and options.get('number of same') is not None
+          and options.get('mode') is not None):
+        # looking for number of same and with specific keywords
+        # filter out those headers that do not contain given keywords
+        results = list(keywordSearch(data, options['keyword list'],
+                                     mode=options['mode']))
+        # create new data from results
+        ind = [list(data.keys()).index(i) for i in results]
+        words = list(data.values())
+        filteredData = {}
+        for i, _ in enumerate(ind):
+            filteredData[results[i]] = words[ind[i]]
+
+        plus = True if options.get('plus') else False
+        return numberOfSame(filteredData, options['number of same'], plus)
 
 
 def numberOfSame(data, numSame, plus):
@@ -35,7 +54,6 @@ def numberOfSame(data, numSame, plus):
 
         returnResult = [{'elements': e} for e in uniqueHeaders]
         for i, headerlist in enumerate(uniqueHeaders):
-            print(headerlist)
             ind = [j for j, x in enumerate(headers) if x == headerlist]
             if len(ind) == 1:
                 returnResult[i]['words'] = keywords[ind[0]]
