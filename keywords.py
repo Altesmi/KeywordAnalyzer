@@ -112,7 +112,6 @@ def main(argv):
         quitProgram()
 
     input = readInput(fname)
-
     results = analyze(input, options)
 
     if len(keywords) > 0 and mode == 'or' and numSame == 0:

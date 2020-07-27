@@ -1,6 +1,7 @@
 import itertools
 import time
 import statistics
+import numpy as np
 from math import comb
 
 
@@ -10,7 +11,9 @@ def analyze(data, options):
        and options.get('keyword list') is None):
         # no keywords, looking for x num of same arguments
         plus = True if options.get('plus') else False
-        return numberOfSame(data, options['number of same'], plus)
+        showTime = True if options.get('show time') else False
+        return numberOfSame(data, options['number of same'], plus=plus,
+                            showTime=showTime)
     elif(options.get('keyword list') is not None
          and options.get('number of same') is None):
         # looking for a set of specific keywords
@@ -31,7 +34,9 @@ def analyze(data, options):
             filteredData[results[i]] = words[ind[i]]
 
         plus = True if options.get('plus') else False
-        return numberOfSame(filteredData, options['number of same'], plus)
+        showTime = True if options.get('show time') else False
+        return numberOfSame(filteredData, options['number of same'], plus=plus,
+                            showTime=showTime)
     elif(options.get('titles') is not None):
         # Looking for the number of same words in the specified headers/titles
         # filter the headers that are wanted
@@ -49,9 +54,9 @@ def findSame(data):
     return result
 
 
-def numberOfSame(data, numSame, plus):
+def numberOfSame(data, numSame, plus=False, showTime=False):
     countOfKw = countKeywords(data)
-    results = findAllIntersectionsOfKeywords(countOfKw, numSame)
+    results = findAllIntersectionsOfKeywords(countOfKw, numSame, showTime)
     if plus:
         # find all unique set of headers
         keywords = [result['words'] for result in results]
@@ -123,16 +128,36 @@ def findIntersectionOfMatchingKeywords(countOfKw, keywords):
     return result
 
 
-def findAllIntersectionsOfKeywords(countOfKw, numSame):
+def findAllIntersectionsOfKeywords(countOfKw, numSame, showTime=False):
     keywords = [k for k in countOfKw.keys()]
     keywordTuples = itertools.combinations(keywords, numSame)
     returnList = []
+    t = []
+    t.append(time.time())
+    # count number of combinations for show time options
+    totalIterations = comb(len(keywords), numSame)
+    counter = 0
+    percentagePoints = [int(totalIterations*i) for i in np.linspace(0, 1, 21)]
+    # edit the first one so that enough calculation takes place
+    percentagePoints[0] = 300
     for keywordTuple in keywordTuples:
+        if counter < 300:
+            t.append(time.time())
+        if showTime and counter in percentagePoints:
+            meanExTime = statistics.mean(np.diff(t))
+            eta = (1-counter/totalIterations)*totalIterations*meanExTime
+            print('{}%: Estimated calculation time is {} s '
+                  '(which is {} h or {} days)'.format(
+                      int(counter/totalIterations*100),
+                      int(eta),
+                      int(eta/3600),
+                      int(eta/3600/24)
+                  ))
         matches = findIntersectionOfMatchingKeywords(
             countOfKw, list(keywordTuple))
         if(len(matches) > 1):
             # not interested if the same two words are found in one element
             returnList.append({'words': list(keywordTuple),
                                'elements': list(matches)})
-
+        counter = counter + 1
     return returnList
