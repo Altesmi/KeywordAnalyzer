@@ -6,15 +6,25 @@ from analyzer import analyze
 
 
 def helpMessages():
-    print('Usage: python keywords.py -i <inputfile> '
-          '-l <language (en or fi) -w "<keywords to search>" '
+    print('')
+    print('Usage: python keywords.py -i < input file > '
+          '-l <language (en or fi) -w "< keywords to search >" '
           '-m <and/or search>'
-          'OR -c <number of same keywords to search>')
+          'AND/OR -c < number of same keywords to search >'
+          'OR -h "< titles >"')
+    print('')
+    print('with -c option it is also possible to include'
+          ' --time flag to print approximate time the calculations take.')
+    print('')
     print('Käyttö: python keywords.py - t < avainsana tiedoston nimi > '
           '-k <kieli (englanti tai suomi)> '
           '-s "<haettavat avainsanat>" '
           '-m <ja/tai haku>'
-          'TAI -y < samojen avainsanojen lukumäärä >')
+          'JA/TAI -y < samojen avainsanojen lukumäärä >'
+          ' TAI -o < otsakkeiden nimet >')
+    print('')
+    print('-y valinnan kanssa on myös mahdollista lisätä --aika valinta,'
+          'jolloin ohjelma tulostaa arvion, kuinka kauan laskenta kestää.')
 
 
 def quitProgram():
@@ -24,7 +34,7 @@ def quitProgram():
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv, 'hi:w:c:t:s:y:m:l:k:',
+        opts, args = getopt.getopt(argv, 'i:w:c:t:s:y:m:l:k:o:h:',
                                    ['inputfile=',
                                     'tiedosto=',
                                     'help',
@@ -34,7 +44,11 @@ def main(argv):
                                     'yht=',
                                     'mode=',
                                     'outputlang=',
-                                    'kieli='])
+                                    'kieli=',
+                                    'time',
+                                    'aika',
+                                    'otsakkeet=',
+                                    'titles='])
     except getopt.GetoptError:
         helpMessages()
 
@@ -43,9 +57,11 @@ def main(argv):
     numSame = 0
     mode = ''
     outputlang = 'en'
+    titles = []
+    showTime = False
+
     for opt, arg in opts:
-        if opt in ('-h', '--help'):
-            quitProgram()
+
         if opt in ('-i', '-t', '--inputfile', '--tiedosto'):
             fname = arg
         if opt in ('-w', '-s', '--words', '--sanat'):
@@ -66,6 +82,10 @@ def main(argv):
         if opt in ('-l', '-k', '--outputlang', '--kieli'):
             if arg in ('fi', 'suomi'):
                 outputlang = 'fi'
+        if opt in ('-h', '-o', '--headers', '--otsakket'):
+            titles = arg.replace(' ', '').split(',')
+        if opt in ('--aika', '--time'):
+            showTime = True
 
     # Check that enough input is given
     if len(fname) == 0:
@@ -74,17 +94,20 @@ def main(argv):
         options = {'keyword list': keywords, 'mode': mode}
     elif (numSame > 0 and len(keywords) == 0 and len(mode) == 0
           and len(numSplit)) == 1:
-        options = {'number of same': numSame}
+        options = {'number of same': numSame, 'show time': showTime}
     elif (numSame > 0 and len(keywords) == 0 and len(mode) == 0
           and len(numSplit) > 1 and numSplit[1] == '+'):
-        options = {'number of same': numSame, 'plus': True}
+        options = {'number of same': numSame, 'plus': True,
+                   'show time': showTime}
     elif (numSame > 0 and len(keywords) > 0 and len(mode) > 0):
         options = {'number of same': numSame,
                    'keyword list': keywords,
-                   'mode': mode}
+                   'mode': mode,
+                   'show time': showTime}
         if(len(numSplit) > 1 and numSplit[1] == '+'):
             options['plus'] = True
-
+    elif(len(titles) > 0):
+        options = {'titles': titles}
     else:
         quitProgram()
 
@@ -130,6 +153,14 @@ def main(argv):
                     item['words']))
                 print(item['elements'])
                 print()
+
+    elif len(titles) > 0:
+        if(outputlang == 'en'):
+            print('The keywords {} are the same in titles'.format(results))
+            print(titles)
+        if(outputlang == 'fi'):
+            print('Avainsanat {} ovat samat otsikoissa'.format(results))
+            print(titles)
 
 
 if __name__ == '__main__':

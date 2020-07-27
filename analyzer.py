@@ -1,6 +1,7 @@
 import itertools
 import time
 import statistics
+from math import comb
 
 
 def analyze(data, options):
@@ -31,6 +32,21 @@ def analyze(data, options):
 
         plus = True if options.get('plus') else False
         return numberOfSame(filteredData, options['number of same'], plus)
+    elif(options.get('titles') is not None):
+        # Looking for the number of same words in the specified headers/titles
+        # filter the headers that are wanted
+        filteredData = {key: data[key] for key in options['titles']}
+
+        # run keywordSearch
+        return findSame(filteredData)
+
+
+def findSame(data):
+    data = list(data.values())
+    result = set(data[0])
+    for elements in data:
+        result = result.intersection(set(elements))
+    return result
 
 
 def numberOfSame(data, numSame, plus):
