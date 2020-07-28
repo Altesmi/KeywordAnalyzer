@@ -6,7 +6,18 @@ from math import comb
 
 
 def analyze(data, options):
-
+    if(options.get('exclude') is not None
+       and options.get('excludemode') is not None):
+        # need to exclude titles with certain keywords
+        if(options['excludemode'] == 'and'):
+            excludeFun = all
+        elif(options['excludemode'] == 'or'):
+            excludeFun = any
+        newData = {}
+        for k, v in data.items():
+            if not excludeFun(elem in v for elem in options['exclude']):
+                newData[k] = v
+        data = newData
     if(options.get('number of same') is not None
        and options.get('keyword list') is None):
         # no keywords, looking for x num of same arguments

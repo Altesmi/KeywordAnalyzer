@@ -48,7 +48,11 @@ def main(argv):
                                     'time',
                                     'aika',
                                     'otsakkeet=',
-                                    'titles='])
+                                    'titles=',
+                                    'exclude=',
+                                    'eisanoja=',
+                                    'excludemode=',
+                                    'eimode='])
     except getopt.GetoptError:
         helpMessages()
 
@@ -58,10 +62,12 @@ def main(argv):
     mode = ''
     outputlang = 'en'
     titles = []
+    excludekw = []
     showTime = False
+    options = {}
+    excludemode = ''
 
     for opt, arg in opts:
-
         if opt in ('-i', '-t', '--inputfile', '--tiedosto'):
             fname = arg
         if opt in ('-w', '-s', '--words', '--sanat'):
@@ -70,7 +76,6 @@ def main(argv):
             mode = arg
             if mode == 'ja':
                 mode = 'and'
-
             if mode == 'tai':
                 mode = 'or'
             if mode not in ('and', 'or'):
@@ -86,29 +91,46 @@ def main(argv):
             titles = arg.replace(' ', '').split(',')
         if opt in ('--aika', '--time'):
             showTime = True
+        if opt in ('--noinclude', '--eisanoja'):
+            excludekw = arg.replace(' ', '').split(',')
+        if opt in ('--excludemode', '--eimode'):
+            excludemode = arg
+            if (excludemode == 'ja'):
+                excludemode = 'and'
+            if (excludemode == 'tai'):
+                excludemode = 'or'
+            if (excludemode not in ('and', 'or')):
+                quitProgram()
 
     # Check that enough input is given
     if len(fname) == 0:
         quitProgram()
-    elif len(keywords) > 0 and len(mode) > 0 and numSame == 0:
-        options = {'keyword list': keywords, 'mode': mode}
-    elif (numSame > 0 and len(keywords) == 0 and len(mode) == 0
-          and len(numSplit)) == 1:
-        options = {'number of same': numSame, 'show time': showTime}
-    elif (numSame > 0 and len(keywords) == 0 and len(mode) == 0
-          and len(numSplit) > 1 and numSplit[1] == '+'):
-        options = {'number of same': numSame, 'plus': True,
-                   'show time': showTime}
-    elif (numSame > 0 and len(keywords) > 0 and len(mode) > 0):
-        options = {'number of same': numSame,
-                   'keyword list': keywords,
-                   'mode': mode,
-                   'show time': showTime}
+    if (len(excludekw) > 0 and len(excludemode) > 0):
+        options['exclude'] = excludekw
+        options['excludemode'] = excludemode
+    if len(keywords) > 0 and len(mode) > 0 and numSame == 0:
+        options['keyword list'] = keywords
+        options['mode'] = mode
+    if (numSame > 0 and len(keywords) == 0 and len(mode) == 0
+            and len(numSplit) == 1):
+        options['number of same'] = numSame
+        options['show time'] = showTime
+    if (numSame > 0 and len(keywords) == 0 and len(mode) == 0
+            and len(numSplit) > 1 and numSplit[1] == '+'):
+        options['number of same '] = numSame
+        options['show time'] = showTime
+        options['plus'] = True
+    if (numSame > 0 and len(keywords) > 0 and len(mode) > 0):
+        options['number of same '] = numSame
+        options['show time'] = showTime
+        options['keyword list'] = keywords
+        options['mode'] = mode
         if(len(numSplit) > 1 and numSplit[1] == '+'):
             options['plus'] = True
-    elif(len(titles) > 0):
-        options = {'titles': titles}
-    else:
+    if(len(titles) > 0):
+        options['titles'] = titles
+
+    if(len(options) < 1):
         quitProgram()
 
     input = readInput(fname)
