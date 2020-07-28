@@ -119,7 +119,7 @@ def main(argv):
             for k, v in results.items():
                 print('For keyword {} found following matches'.format(k))
                 print(v['elements'])
-                print('Alltogether {} occurences in input file'.format(
+                print('Alltogether {} occurences in the input file'.format(
                     v['occurence']))
                 print()
         if(outputlang == 'fi'):
@@ -135,9 +135,16 @@ def main(argv):
         if(outputlang == 'en'):
             print('The words {} are all found in titles'.format(keywords))
             print(list(results))
+            print('Alltogether {} occurences in the input file'.format(
+                len(list(results))
+            ))
         if(outputlang == 'fi'):
             print('Sanat {} löytyvät kaikki otsikoista'.format(keywords))
             print(list(results))
+            print('Avainsana löytyy yhteensä {} kertaa annetusta '
+                  'tiedostosta'.format(
+                      len(list(results))
+                  ))
 
     elif numSame > 0:
         if(outputlang == 'en'):
